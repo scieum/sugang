@@ -32,6 +32,9 @@
   --ink:#eef3f0; --muted:#a6b3ac; --green:#1f9c5e; --green-ink:#7fd9a8;
   --yellow:#e9dc55; --coral:#e4605c; --teal:#1f8a8d; --orange:#e89c3b; --bar:#7fd9a826; color-scheme:dark}
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--frame)}
 body{background:var(--frame);color:var(--ink);font-family:var(--f-body);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 48px}
 .wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
@@ -46,11 +49,11 @@ body{background:var(--frame);color:var(--ink);font-family:var(--f-body);
 .board{background:var(--board);border-radius:28px;padding:22px clamp(14px,3vw,28px) 28px;display:flex;flex-direction:column;gap:20px}
 
 /* tabs */
-.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--board);margin:-6px -4px 0;padding:6px 4px 8px}
 .tabgroup{display:flex;flex-direction:column;gap:6px;min-width:0}
-.tabgroup h2{margin:0;font-size:.82rem;font-weight:600;color:var(--muted);padding-left:4px}
+.tabgroup h2{margin:0;font-size:.82rem;font-weight:700;color:var(--muted);padding-left:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tabgroup .btns{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.tab{font:inherit;font-weight:800;font-size:1rem;border:0;cursor:pointer;padding:12px 8px;border-radius:14px;
+.tab{font:inherit;font-weight:800;font-size:1rem;border:0;cursor:pointer;padding:12px 8px;min-height:46px;border-radius:14px;
   background:var(--row);color:var(--ink);transition:transform .12s}
 .tab:hover{transform:translateY(-1px)}
 .tab:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
@@ -81,8 +84,31 @@ ul.list .n small{font-family:var(--f-body);font-style:normal;font-size:.75rem;co
 ul.list .tag{font-style:normal;font-weight:700;color:var(--coral);font-size:.86rem}
 .note{font-size:.8rem;color:var(--muted);text-align:center;margin:0}
 @media (max-width:640px){
+  body{padding-block:20px 32px}
+  .wrap{gap:20px}
+  .hero{gap:8px}
+  .pill{font-size:.88rem;padding:6px 20px}
+  .sticker{font-size:clamp(1.9rem,9vw,2.4rem);padding:8px 18px 5px}
+  .sticker.y{font-size:clamp(1.55rem,7.4vw,2rem)}
+  .meta{font-size:.8rem;margin:4px 0 0}
+  .board{border-radius:22px;padding:12px 10px 18px;gap:12px}
+  .tabs{gap:8px;margin:-2px -2px 0;padding:4px 2px 8px}
+  .tabgroup{gap:4px}
+  .tabgroup h2{font-size:.74rem;padding-left:2px}
+  .tabgroup .btns{gap:5px}
+  .tab{font-size:.95rem;padding:10px 4px;border-radius:12px}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .sort{font-size:.82rem;padding:8px 10px;min-height:36px}
+  .phead{padding:12px 16px;gap:4px 10px}
+  .phead h3{font-size:1.2rem}
+  .phead .info{font-size:.78rem}
+  .card{border-radius:16px}
   ul.list{columns:1}
-  .tabs{grid-template-columns:1fr}
+  ul.list li{padding:10px 16px;min-height:44px;gap:10px}
+  ul.list .name{font-size:.94rem;line-height:1.35}
+  ul.list .n{font-size:1.18rem}
+  ul.list .tag{font-size:.8rem}
+  .note{font-size:.74rem;line-height:1.5;padding:0 6px}
 }
 @media (prefers-reduced-motion:reduce){.tab{transition:none}}
 </style>
@@ -122,11 +148,11 @@ const tabs=document.getElementById("tabs"), panel=document.getElementById("panel
 ["2학년","3학년"].forEach(g=>{
   const grp=document.createElement("div"); grp.className="tabgroup";
   const items=DATA.filter(d=>d.grade===g);
-  grp.innerHTML=`<h2>2027 ${g} (${items[0].now})</h2><div class="btns"></div>`;
+  grp.innerHTML=`<h2>${g} (${items[0].now})</h2><div class="btns"></div>`;
   items.forEach(d=>{
     const b=document.createElement("button");
     b.className="tab"; b.type="button"; b.id="tab-"+d.id; b.setAttribute("role","tab"); b.dataset.c=d.c; b.dataset.id=d.id;
-    b.textContent=`${g} ${d.sem}`;
+    b.textContent=d.sem; b.setAttribute("aria-label",`${g} ${d.sem}`);
     b.addEventListener("click",()=>select(d.id));
     grp.querySelector(".btns").appendChild(b);
   });
@@ -152,7 +178,9 @@ function render(){
     <ul class="list">${rows.map(([name,n,closed])=>`<li${closed?' class="closed"':''}><span class="name">${name}${closed?' <em class="tag">(폐강)</em>':''}</span><span class="n">${n}<small>명</small></span></li>`).join("")}</ul>
   </div>`;
 }
-function select(id){current=id;try{localStorage.setItem("sugang-tab",id)}catch(e){}render();}
+function select(id){current=id;try{localStorage.setItem("sugang-tab",id)}catch(e){}render();
+  const top=panel.getBoundingClientRect().top, offset=tabs.getBoundingClientRect().bottom+8;
+  if(top<offset) window.scrollBy({top:top-offset,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});}
 const so=document.getElementById("sortOrder"), sc=document.getElementById("sortCount");
 so.onclick=()=>{byCount=false;so.setAttribute("aria-pressed","true");sc.setAttribute("aria-pressed","false");render();};
 sc.onclick=()=>{byCount=true;sc.setAttribute("aria-pressed","true");so.setAttribute("aria-pressed","false");render();};
