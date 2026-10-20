@@ -1,5 +1,9 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>2027학년도 수강신청 결과</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Pretendard (projectnoonnu CDN) */
 @font-face{font-family:'Pretendard';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Thin.woff2') format('woff2');font-weight:100;font-display:swap}
@@ -35,7 +39,8 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--frame)}
-body{background:var(--frame);color:var(--ink);font-family:var(--f-body);
+html{background:var(--frame)}
+body{margin:0;background:var(--frame);color:var(--ink);font-family:var(--f-body);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 48px}
 .wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
 
@@ -112,7 +117,8 @@ ul.list .tag{font-style:normal;font-weight:700;color:var(--coral);font-size:.86r
 }
 @media (prefers-reduced-motion:reduce){.tab{transition:none}}
 </style>
-
+</head>
+<body>
 <div class="wrap">
   <header class="hero">
     <div class="pill">2027학년도</div>
@@ -186,3 +192,6 @@ so.onclick=()=>{byCount=false;so.setAttribute("aria-pressed","true");sc.setAttri
 sc.onclick=()=>{byCount=true;sc.setAttribute("aria-pressed","true");so.setAttribute("aria-pressed","false");render();};
 render();
 </script>
+
+</body>
+</html>
